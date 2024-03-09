@@ -17,7 +17,8 @@ on:
 
 env:
   CMAKE_BUILD_TYPE: Debug
-  NPROC: 16
+  # let the script figure out number of procs
+  # NPROC: 16
   # Note: max 128 chars according to OCI Distribution Spec
   IMAGE_TAG: ${{ github.workflow_sha }}-${{ github.run_id }}-${{ github.run_attempt }}
 
@@ -36,14 +37,14 @@ jobs:
       - name: Checkout s3gw
         uses: actions/checkout@v3
         with:
-          repository: aquarist-labs/s3gw
+          repository: 1e3ms/1e3ms-s3gw
           path: s3gw
           submodules: false
 
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.8
+          python-version: 3.11
 
       - name: Install Dependencies
         run: |
@@ -57,7 +58,6 @@ jobs:
         run: |
           docker build \
             --build-arg CMAKE_BUILD_TYPE=Debug \
-            --build-arg NPROC=16 \
             --file s3gw/Dockerfile \
             --tag s3gw-unittests:${IMAGE_TAG} \
             --target s3gw-unittests \
@@ -71,7 +71,6 @@ jobs:
         run: |
           docker build \
             --build-arg CMAKE_BUILD_TYPE=Debug \
-            --build-arg NPROC=16 \
             --build-arg SRC_S3GW_DIR=s3gw \
             --file s3gw/Dockerfile \
             --tag s3gw:${IMAGE_TAG} \
